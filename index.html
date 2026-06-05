@@ -319,15 +319,15 @@
 
       // ── Title bar ──
       const titleY = pad + size * 0.085;
-      ctx.font = `italic ${size*0.032}px Lora, Georgia, serif`;
+      ctx.font = `italic ${size*0.044}px Lora, Georgia, serif`;
       ctx.fillStyle = '#b07858';
       ctx.textAlign = 'center';
       ctx.fillText('Fortune Cookie', size/2, titleY);
 
       // Sparkles either side of title
-      ctx.font = `${size*0.028}px serif`;
-      ctx.fillText('✦', size/2 - size*0.22, titleY);
-      ctx.fillText('✦', size/2 + size*0.22, titleY);
+      ctx.font = `${size*0.038}px serif`;
+      ctx.fillText('✦', size/2 - size*0.26, titleY);
+      ctx.fillText('✦', size/2 + size*0.26, titleY);
 
       // ── Watermark cookie (big, faint, centered) ──
       await drawEmoji(ctx, '🥠', size/2, size * 0.48, size * 0.32, 0.18);
@@ -342,12 +342,12 @@
       lines.forEach((l, i) => ctx.fillText(l, size/2, ty + i * lh));
 
       // ── Lucky numbers ──
-      ctx.font = `${size*0.019}px Georgia, serif`;
+      ctx.font = `${size*0.032}px Georgia, serif`;
       ctx.fillStyle = '#b8a888';
       ctx.fillText('lucky  ·  ' + lucky.join('   '), size/2, size * 0.74);
 
       // ── Date at bottom ──
-      ctx.font = `${size*0.024}px Georgia, serif`;
+      ctx.font = `${size*0.036}px Georgia, serif`;
       ctx.fillStyle = '#c0aa88';
       ctx.fillText(new Date().toLocaleDateString('en-GB').replace(/\//g, '.'), size/2, size - pad - size*0.04);
 
