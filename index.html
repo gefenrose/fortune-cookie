@@ -310,18 +310,8 @@
       ctx.fillStyle = wash;
       ctx.fillRect(0, 0, size, size);
 
-      // Cookie emoji — soft backing circle so it renders clearly
-      const emojiSize = size * 0.18;
-      const emojiY = size * 0.28;
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(size/2, emojiY - emojiSize * 0.28, emojiSize * 0.58, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(220, 205, 175, 0.35)';
-      ctx.fill();
-      ctx.restore();
-      ctx.font = `${emojiSize}px serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText('🥠', size/2, emojiY);
+      // Draw fortune cookie shape (SVG-style on canvas)
+      drawCanvasCookie(ctx, size/2, size * 0.24, size * 0.13);
 
       // Date
       ctx.font = `300 ${size*0.022}px 'Georgia', serif`;
@@ -385,6 +375,48 @@
       }
       if (line) lines.push(line);
       return lines;
+    }
+
+    function drawCanvasCookie(ctx, cx, cy, r) {
+      ctx.save();
+      // Shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.12)';
+      ctx.shadowBlur = r * 0.6;
+      ctx.shadowOffsetY = r * 0.15;
+
+      // Bottom half — darker crescent
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r * 0.18, r * 1.05, r * 0.62, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#b8892a';
+      ctx.fill();
+
+      // Top half — lighter dome
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - r * 0.1, r * 1.0, r * 0.68, 0, Math.PI * 1.12, Math.PI * 2);
+      ctx.fillStyle = '#d4a843';
+      ctx.fill();
+
+      // Fold crease line
+      ctx.shadowColor = 'transparent';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + r * 0.04, r * 0.88, r * 0.18, 0, 0, Math.PI);
+      ctx.strokeStyle = '#a07020';
+      ctx.lineWidth = r * 0.09;
+      ctx.stroke();
+
+      // Paper strip
+      ctx.beginPath();
+      ctx.rect(cx - r * 0.55, cy - r * 0.07, r * 1.1, r * 0.18);
+      ctx.fillStyle = '#f8f0dc';
+      ctx.fill();
+
+      // Highlight sheen
+      ctx.beginPath();
+      ctx.ellipse(cx - r * 0.25, cy - r * 0.38, r * 0.35, r * 0.13, -0.4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,235,160,0.45)';
+      ctx.fill();
+
+      ctx.restore();
     }
 
     // PWA install
