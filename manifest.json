@@ -2,12 +2,19 @@
   "name": "Fortune Cookie",
   "short_name": "Fortune",
   "description": "Your daily fortune, freshly cracked.",
-  "start_url": "/",
+  "start_url": "/fortune-cookie/",
+  "scope": "/fortune-cookie/",
   "display": "standalone",
-  "background_color": "#faf7f2",
+  "background_color": "#f5ede0",
   "theme_color": "#faf7f2",
   "orientation": "portrait",
   "icons": [
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
@@ -19,13 +26,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
     }
   ]
 }
