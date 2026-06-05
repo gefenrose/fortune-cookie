@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fortune Cookie</title>
+  <meta name="description" content="Your daily fortune, freshly cracked." />
+  <meta name="theme-color" content="#faf7f2" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400;1,600&family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100dvh;
+      background: #faf7f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      padding: 24px;
+      color: #1a1a1a;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .date {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: #aaa;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    /* Emoji button */
+    .cookie-btn {
+      font-size: 72px;
+      line-height: 1;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 16px;
+      border-radius: 50%;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cookie-btn:hover { transform: scale(1.08); }
+    .cookie-btn:active { transform: scale(0.94); opacity: 0.8; }
+    .cookie-btn.gone {
+      transform: scale(0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s ease, opacity 0.25s ease;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 16px;
+      letter-spacing: 0.05em;
+      transition: opacity 0.3s;
+    }
+    .hint.gone { opacity: 0; }
+
+    /* Fortune */
+    .fortune-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+      position: absolute;
+    }
+    .fortune-wrap.visible {
+      opacity: 1;
+      transform: none;
+      pointer-events: all;
+      position: relative;
+    }
+
+    .fortune-text {
+      font-family: 'Lora', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(18px, 5vw, 22px);
+      line-height: 1.7;
+      color: #1a1a1a;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    .divider {
+      width: 32px;
+      height: 1px;
+      background: #d0c8b8;
+    }
+
+    .lucky {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: #aaa;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border: 1px solid #e0d8cc;
+      background: #fff;
+      color: #555;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn:hover { background: #f5f0e8; border-color: #c8bca8; color: #333; }
+    .btn:active { background: #ede6d8; }
+
+    canvas { display: none; }
+
+    #installBanner {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: #faf7f2;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      padding: 12px 20px;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="date" id="dateLabel"></div>
+
+    <div id="precrack" style="display:flex;flex-direction:column;align-items:center;">
+      <button class="cookie-btn" id="cookieBtn" onclick="crack()" aria-label="Crack your fortune cookie">🥠</button>
+      <div class="hint" id="hint">tap to open</div>
+    </div>
+
+    <div class="fortune-wrap" id="fortuneWrap">
+      <div class="fortune-text" id="fortuneText"></div>
+      <div class="divider"></div>
+      <div class="lucky" id="luckyNumbers"></div>
+      <div class="actions">
+        <button class="btn" onclick="reset()">↺ New day</button>
+        <button class="btn" onclick="exportFortune()">↓ Save image</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="exportCanvas"></canvas>
+  <div id="installBanner">Add to Home Screen</div>
+
+  <script>
+    const FORTUNES = [
+      "The journey of a thousand miles begins with a single, courageous step. Have you tried driving?",
+      "A wise person knows the limits of their own wisdom. You are not yet wise.",
+      "Something beautiful is about to happen — keep your eyes open.",
+      "The obstacle in your path is not a wall. It is a door. It was unlocked the whole time.",
+      "You will soon discover a hidden talent. Hopefully before your next job interview.",
+      "The best time to plant a tree was yesterday. The second best time is now. You will probably do neither.",
+      "What you seek is also seeking you. Check your spam folder.",
+      "Patience is not passive. It is concentrated strength. Also, the WiFi is just slow.",
+      "An unexpected reunion brings joy beyond measure.",
+      "Your silence is often more powerful than a thousand words. Try it in meetings.",
+      "New opportunities emerge where old doors have closed. Also, some doors are just stuck — try pushing.",
+      "A small act of kindness creates ripples that reach distant shores.",
+      "The universe is always conspiring in your favor. Currently on a coffee break.",
+      "Your greatest strength lies in knowing when to be gentle. Your second greatest is parallel parking.",
+      "Today's dream is tomorrow's destination. Tonight's dream will just be confusing.",
+      "Trust the timing of your own unfolding. The timing is not great, but trust it.",
+      "Where curiosity leads, wisdom follows. Usually at a safe distance.",
+      "Fortune favors those who are prepared to be surprised. You were not prepared.",
+      "The moon does not worry whether it is seen. It simply shines. Be more like the moon, less like you.",
+      "Every ending carries the seed of a remarkable beginning. Every fortune cookie carries this sentence.",
+      "Still waters run deep — trust what lies beneath the surface.",
+      "An important message is on its way to you. It will arrive when you are in the shower.",
+      "The bamboo bends but does not break. So too shall you. Probably.",
+      "Look for the magic in the mundane — it is always there.",
+      "Your next chapter is the most interesting one yet. The previous ones needed work.",
+      "The stars aligned for you today. Statistically, this was overdue.",
+      "One who lights another's lantern also brightens their own path. One who eats another's fries makes an enemy.",
+      "Joy shared is joy doubled. Sorrow shared is sorrow halved. Snacks shared are snacks gone.",
+      "Mountains exist to be crossed, not feared. Hills, however, are optional.",
+      "A long-held wish is about to be fulfilled. Please have a backup wish ready.",
+      "Your attention is your most precious resource. You have spent some of it reading this.",
+      "To forgive is to set a prisoner free and discover the prisoner was you.",
+      "Change is the only constant — let it carry you forward. Also laundry.",
+      "Rest is not idleness. It is the preparation for greatness. This nap is load-bearing.",
+      "A small crack lets in the light. A large crack lets in a draft — call a contractor.",
+      "You are exactly where you are supposed to be. No, really. Stop moving.",
+      "The answer you've been searching for was inside you all along. So was that weird pain. See a doctor.",
+      "What seems impossible today will be a fond memory tomorrow.",
+      "Harmony is not the absence of conflict, but the wisdom to navigate it. Good luck at dinner.",
+      "Help — I am trapped inside a fortune cookie factory.",
+      "Today is a good day to make a decision you'll confidently second-guess by evening.",
+      "The person who says it cannot be done should not interrupt the person doing it. But maybe listen to them.",
+      "You will be hungry again in one hour.",
+      "A wise man once said nothing. Everyone assumed he was brilliant.",
+      "Do not worry about money. Worry about everything else. Then also worry about money.",
+      "Someone is thinking about you right now. It is the person you owe money to.",
+      "Good things come to those who wait. So does a cold meal.",
+      "The cookie was the real fortune all along.",
+      "This fortune intentionally left blank. (It wasn't.)",
+      "You have been chosen. We cannot say for what. Good luck.",
+    ];
+
+    const LUCKY_SETS = [
+      [3,17,22,8,44], [7,14,21,36,49], [2,11,29,38,42],
+      [5,18,27,33,47], [1,9,16,34,48], [6,13,25,31,45], [4,12,23,37,50],
+    ];
+
+    function getDayIndex() {
+      return Math.floor((Date.now() - new Date(2024,0,1)) / 86400000);
+    }
+    function getTodayFortune() {
+      const idx = getDayIndex();
+      return { text: FORTUNES[idx % FORTUNES.length], lucky: LUCKY_SETS[idx % LUCKY_SETS.length] };
+    }
+    function formatDate() {
+      return new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+    }
+
+    document.getElementById('dateLabel').textContent = formatDate();
+
+    const todayKey = new Date().toISOString().slice(0,10);
+    if (localStorage.getItem('fortune_cracked') === todayKey) {
+      showFortune();
+      document.getElementById('precrack').style.display = 'none';
+    }
+
+    function crack() {
+      const btn = document.getElementById('cookieBtn');
+      const hint = document.getElementById('hint');
+      btn.classList.add('gone');
+      hint.classList.add('gone');
+      localStorage.setItem('fortune_cracked', todayKey);
+      setTimeout(() => {
+        document.getElementById('precrack').style.display = 'none';
+        showFortune();
+      }, 320);
+    }
+
+    function showFortune() {
+      const { text, lucky } = getTodayFortune();
+      document.getElementById('fortuneText').textContent = text;
+      document.getElementById('luckyNumbers').textContent = 'Lucky · ' + lucky.join('  ');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.getElementById('fortuneWrap').classList.add('visible');
+        });
+      });
+    }
+
+    function reset() {
+      localStorage.removeItem('fortune_cracked');
+      location.reload();
+    }
+
+    function exportFortune() {
+      const { text, lucky } = getTodayFortune();
+      const size = 1080;
+      const canvas = document.getElementById('exportCanvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Background
+      ctx.fillStyle = '#faf7f2';
+      ctx.fillRect(0, 0, size, size);
+
+      // Subtle center wash
+      const wash = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size*0.55);
+      wash.addColorStop(0, 'rgba(240,228,200,0.45)');
+      wash.addColorStop(1, 'transparent');
+      ctx.fillStyle = wash;
+      ctx.fillRect(0, 0, size, size);
+
+      // Cookie emoji
+      ctx.font = `${size * 0.12}px serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('🥠', size/2, size * 0.3);
+
+      // Date
+      ctx.font = `300 ${size*0.022}px 'Georgia', serif`;
+      ctx.fillStyle = '#aaa';
+      ctx.letterSpacing = `${size*0.006}px`;
+      ctx.fillText(formatDate().toUpperCase(), size/2, size * 0.38);
+
+      // Thin rule
+      ctx.strokeStyle = '#d8d0c0';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(size*0.35, size*0.42);
+      ctx.lineTo(size*0.65, size*0.42);
+      ctx.stroke();
+
+      // Fortune text
+      ctx.fillStyle = '#1a1a1a';
+      ctx.font = `italic ${size*0.042}px 'Georgia', serif`;
+      ctx.letterSpacing = '0px';
+      const lines = wrapText(ctx, text, size * 0.72);
+      const lh = size * 0.062;
+      const totalH = lines.length * lh;
+      const ty = size/2 - totalH/2 + lh * 0.5 + size * 0.04;
+      lines.forEach((l, i) => ctx.fillText(l, size/2, ty + i * lh));
+
+      // Lucky
+      ctx.font = `300 ${size*0.02}px 'Georgia', serif`;
+      ctx.fillStyle = '#aaa';
+      ctx.letterSpacing = `${size*0.005}px`;
+      ctx.fillText('LUCKY  ·  ' + lucky.join('   '), size/2, size * 0.76);
+
+      // Bottom rule + brand
+      ctx.strokeStyle = '#d8d0c0';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(size*0.35, size*0.8);
+      ctx.lineTo(size*0.65, size*0.8);
+      ctx.stroke();
+
+      ctx.font = `300 ${size*0.018}px 'Georgia', serif`;
+      ctx.fillStyle = '#ccc';
+      ctx.fillText('fortune cookie', size/2, size * 0.84);
+
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `fortune-${todayKey}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    }
+
+    function wrapText(ctx, text, maxW) {
+      const words = text.split(' ');
+      const lines = []; let line = '';
+      for (const w of words) {
+        const t = line ? `${line} ${w}` : w;
+        if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; }
+        else line = t;
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    // PWA install
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault(); deferredPrompt = e;
+      const b = document.getElementById('installBanner');
+      b.style.display = 'block';
+      b.onclick = async () => {
+        b.style.display = 'none';
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      };
+    });
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  </script>
+</body>
+</html>
