@@ -310,13 +310,13 @@
       ctx.fillStyle = wash;
       ctx.fillRect(0, 0, size, size);
 
-      // Draw fortune cookie shape (SVG-style on canvas)
-      drawCanvasCookie(ctx, size/2, size * 0.24, size * 0.13);
+      // Draw fortune cookie
+      drawCanvasCookie(ctx, size/2, size * 0.24, size * 0.11);
 
-      // Date
-      ctx.font = `300 ${size*0.022}px 'Georgia', serif`;
+      // Date — spaced manually, no letterSpacing
+      ctx.font = `${size*0.021}px Georgia, serif`;
       ctx.fillStyle = '#aaa';
-      ctx.letterSpacing = `${size*0.006}px`;
+      ctx.textAlign = 'center';
       ctx.fillText(formatDate().toUpperCase(), size/2, size * 0.38);
 
       // Thin rule
@@ -329,18 +329,16 @@
 
       // Fortune text
       ctx.fillStyle = '#1a1a1a';
-      ctx.font = `italic ${size*0.042}px 'Georgia', serif`;
-      ctx.letterSpacing = '0px';
-      const lines = wrapText(ctx, text, size * 0.72);
+      ctx.font = `italic ${size*0.042}px Georgia, serif`;
+      const lines = wrapText(ctx, text, size * 0.74);
       const lh = size * 0.062;
       const totalH = lines.length * lh;
       const ty = size/2 - totalH/2 + lh * 0.5 + size * 0.04;
       lines.forEach((l, i) => ctx.fillText(l, size/2, ty + i * lh));
 
       // Lucky
-      ctx.font = `300 ${size*0.02}px 'Georgia', serif`;
+      ctx.font = `${size*0.02}px Georgia, serif`;
       ctx.fillStyle = '#aaa';
-      ctx.letterSpacing = `${size*0.005}px`;
       ctx.fillText('LUCKY  ·  ' + lucky.join('   '), size/2, size * 0.76);
 
       // Bottom rule + brand
@@ -351,7 +349,7 @@
       ctx.lineTo(size*0.65, size*0.8);
       ctx.stroke();
 
-      ctx.font = `300 ${size*0.018}px 'Georgia', serif`;
+      ctx.font = `${size*0.018}px Georgia, serif`;
       ctx.fillStyle = '#ccc';
       ctx.fillText('fortune cookie', size/2, size * 0.84);
 
@@ -379,41 +377,85 @@
 
     function drawCanvasCookie(ctx, cx, cy, r) {
       ctx.save();
-      // Shadow
-      ctx.shadowColor = 'rgba(0,0,0,0.12)';
-      ctx.shadowBlur = r * 0.6;
-      ctx.shadowOffsetY = r * 0.15;
 
-      // Bottom half — darker crescent
+      // A fortune cookie is a circular wafer pinched/folded in the middle.
+      // We draw it as two facing crescents meeting at the center crease.
+
+      const w = r * 2.2;  // total width
+      const h = r * 1.5;  // total height
+
+      // Drop shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.15)';
+      ctx.shadowBlur = r * 0.8;
+      ctx.shadowOffsetY = r * 0.25;
+
+      // Left lobe
       ctx.beginPath();
-      ctx.ellipse(cx, cy + r * 0.18, r * 1.05, r * 0.62, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#b8892a';
+      ctx.moveTo(cx, cy - h * 0.08);
+      ctx.bezierCurveTo(
+        cx - w * 0.08, cy - h * 0.55,
+        cx - w * 0.52, cy - h * 0.55,
+        cx - w * 0.5,  cy
+      );
+      ctx.bezierCurveTo(
+        cx - w * 0.52, cy + h * 0.42,
+        cx - w * 0.08, cy + h * 0.42,
+        cx, cy + h * 0.08
+      );
+      ctx.closePath();
+      const lgLeft = ctx.createLinearGradient(cx - w*0.5, cy - h*0.4, cx, cy + h*0.4);
+      lgLeft.addColorStop(0, '#e8b84b');
+      lgLeft.addColorStop(0.5, '#c9922a');
+      lgLeft.addColorStop(1, '#a07020');
+      ctx.fillStyle = lgLeft;
       ctx.fill();
 
-      // Top half — lighter dome
-      ctx.beginPath();
-      ctx.ellipse(cx, cy - r * 0.1, r * 1.0, r * 0.68, 0, Math.PI * 1.12, Math.PI * 2);
-      ctx.fillStyle = '#d4a843';
-      ctx.fill();
-
-      // Fold crease line
       ctx.shadowColor = 'transparent';
+
+      // Right lobe
       ctx.beginPath();
-      ctx.ellipse(cx, cy + r * 0.04, r * 0.88, r * 0.18, 0, 0, Math.PI);
-      ctx.strokeStyle = '#a07020';
-      ctx.lineWidth = r * 0.09;
+      ctx.moveTo(cx, cy - h * 0.08);
+      ctx.bezierCurveTo(
+        cx + w * 0.08, cy - h * 0.55,
+        cx + w * 0.52, cy - h * 0.55,
+        cx + w * 0.5,  cy
+      );
+      ctx.bezierCurveTo(
+        cx + w * 0.52, cy + h * 0.42,
+        cx + w * 0.08, cy + h * 0.42,
+        cx, cy + h * 0.08
+      );
+      ctx.closePath();
+      const lgRight = ctx.createLinearGradient(cx, cy - h*0.4, cx + w*0.5, cy + h*0.4);
+      lgRight.addColorStop(0, '#d4a030');
+      lgRight.addColorStop(0.5, '#b87e1a');
+      lgRight.addColorStop(1, '#8a5c10');
+      ctx.fillStyle = lgRight;
+      ctx.fill();
+
+      // Center crease/fold line
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - h * 0.08);
+      ctx.lineTo(cx, cy + h * 0.08);
+      ctx.strokeStyle = '#7a4e0a';
+      ctx.lineWidth = r * 0.12;
+      ctx.lineCap = 'round';
       ctx.stroke();
 
-      // Paper strip
+      // Paper strip poking out of center
+      ctx.save();
       ctx.beginPath();
-      ctx.rect(cx - r * 0.55, cy - r * 0.07, r * 1.1, r * 0.18);
-      ctx.fillStyle = '#f8f0dc';
+      ctx.roundRect(cx - r * 0.7, cy - r * 0.1, r * 1.4, r * 0.22, r * 0.04);
+      ctx.fillStyle = '#f8f2e0';
+      ctx.shadowColor = 'rgba(0,0,0,0.1)';
+      ctx.shadowBlur = r * 0.2;
       ctx.fill();
+      ctx.restore();
 
-      // Highlight sheen
+      // Highlight on left lobe
       ctx.beginPath();
-      ctx.ellipse(cx - r * 0.25, cy - r * 0.38, r * 0.35, r * 0.13, -0.4, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,235,160,0.45)';
+      ctx.ellipse(cx - w * 0.28, cy - h * 0.22, w * 0.12, h * 0.1, -0.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,235,150,0.4)';
       ctx.fill();
 
       ctx.restore();
