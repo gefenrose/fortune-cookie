@@ -5,24 +5,24 @@
   "start_url": "/fortune-cookie/",
   "scope": "/fortune-cookie/",
   "display": "standalone",
-  "background_color": "#f5ede0",
+  "background_color": "#c8860a",
   "theme_color": "#faf7f2",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icons/icon-180.png",
+      "src": "https://gefenrose.github.io/fortune-cookie/icons/icon-180.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-192.png",
+      "src": "https://gefenrose.github.io/fortune-cookie/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "https://gefenrose.github.io/fortune-cookie/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
