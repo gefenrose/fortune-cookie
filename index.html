@@ -299,61 +299,57 @@
       canvas.width = size; canvas.height = size;
       const ctx = canvas.getContext('2d');
 
-      // Background
+      const pad = size * 0.055;
+      const r = size * 0.055; // corner radius
+
+      // ── Background ──
       ctx.fillStyle = '#faf7f2';
       ctx.fillRect(0, 0, size, size);
 
-      // Subtle center wash
-      const wash = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size*0.55);
-      wash.addColorStop(0, 'rgba(240,228,200,0.45)');
-      wash.addColorStop(1, 'transparent');
-      ctx.fillStyle = wash;
-      ctx.fillRect(0, 0, size, size);
+      // ── Card ──
+      roundRect(ctx, pad, pad, size - pad*2, size - pad*2, r);
+      ctx.fillStyle = '#f5f0e8';
+      ctx.fill();
 
-      // Draw cookie emoji reliably
-      await drawEmoji(ctx, '🥠', size/2, size * 0.17, size * 0.15);
-
-      // Date — with breathing room below cookie
-      ctx.font = `${size*0.021}px Georgia, serif`;
-      ctx.fillStyle = '#aaa';
-      ctx.textAlign = 'center';
-      ctx.fillText(formatDate().toUpperCase(), size/2, size * 0.38);
-
-      // Thin rule
-      ctx.strokeStyle = '#d8d0c0';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(size*0.35, size*0.41);
-      ctx.lineTo(size*0.65, size*0.41);
+      // Card border
+      roundRect(ctx, pad, pad, size - pad*2, size - pad*2, r);
+      ctx.strokeStyle = 'rgba(180,160,130,0.35)';
+      ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Fortune text — centered in the zone between rule and lucky numbers
-      const zoneTop = size * 0.41;
-      const zoneBot = size * 0.73;
-      ctx.fillStyle = '#1a1a1a';
-      ctx.font = `italic ${size*0.042}px Georgia, serif`;
-      const lines = wrapText(ctx, text, size * 0.74);
-      const lh = size * 0.062;
+      // ── Title bar ──
+      const titleY = pad + size * 0.085;
+      ctx.font = `italic ${size*0.032}px Lora, Georgia, serif`;
+      ctx.fillStyle = '#b07858';
+      ctx.textAlign = 'center';
+      ctx.fillText('Fortune Cookie', size/2, titleY);
+
+      // Sparkles either side of title
+      ctx.font = `${size*0.028}px serif`;
+      ctx.fillText('✦', size/2 - size*0.22, titleY);
+      ctx.fillText('✦', size/2 + size*0.22, titleY);
+
+      // ── Watermark cookie (big, faint, centered) ──
+      await drawEmoji(ctx, '🥠', size/2, size * 0.48, size * 0.32, 0.18);
+
+      // ── Fortune text (over watermark) ──
+      ctx.fillStyle = '#2a1a0a';
+      ctx.font = `italic ${size*0.046}px Lora, Georgia, serif`;
+      const lines = wrapText(ctx, text, size * 0.72);
+      const lh = size * 0.068;
       const totalH = lines.length * lh;
-      const ty = (zoneTop + zoneBot) / 2 - totalH / 2 + lh * 0.75;
+      const ty = size * 0.5 - totalH / 2 + lh * 0.75;
       lines.forEach((l, i) => ctx.fillText(l, size/2, ty + i * lh));
 
-      // Lucky numbers
-      ctx.font = `${size*0.02}px Georgia, serif`;
-      ctx.fillStyle = '#aaa';
-      ctx.fillText('LUCKY  ·  ' + lucky.join('   '), size/2, size * 0.73);
+      // ── Lucky numbers ──
+      ctx.font = `${size*0.019}px Georgia, serif`;
+      ctx.fillStyle = '#b8a888';
+      ctx.fillText('lucky  ·  ' + lucky.join('   '), size/2, size * 0.74);
 
-      // Bottom rule + brand
-      ctx.strokeStyle = '#d8d0c0';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(size*0.35, size*0.77);
-      ctx.lineTo(size*0.65, size*0.77);
-      ctx.stroke();
-
-      ctx.font = `${size*0.018}px Georgia, serif`;
-      ctx.fillStyle = '#ccc';
-      ctx.fillText('fortune cookie', size/2, size * 0.81);
+      // ── Date at bottom ──
+      ctx.font = `${size*0.024}px Georgia, serif`;
+      ctx.fillStyle = '#c0aa88';
+      ctx.fillText(new Date().toLocaleDateString('en-GB').replace(/\//g, '.'), size/2, size - pad - size*0.04);
 
       canvas.toBlob(blob => {
         const url = URL.createObjectURL(blob);
@@ -363,6 +359,16 @@
         a.click();
         URL.revokeObjectURL(url);
       }, 'image/png');
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.lineTo(x+w-r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
+      ctx.lineTo(x+w, y+h-r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
+      ctx.lineTo(x+r, y+h); ctx.arcTo(x, y+h, x, y+h-r, r);
+      ctx.lineTo(x, y+r); ctx.arcTo(x, y, x+r, y, r);
+      ctx.closePath();
     }
 
     function wrapText(ctx, text, maxW) {
@@ -377,7 +383,7 @@
       return lines;
     }
 
-    function drawEmoji(ctx, emoji, cx, cy, size) {
+    function drawEmoji(ctx, emoji, cx, cy, size, opacity = 1) {
       return new Promise(resolve => {
         const off = document.createElement('canvas');
         off.width = size * 2; off.height = size * 2;
@@ -386,9 +392,11 @@
         octx.textAlign = 'center';
         octx.textBaseline = 'middle';
         octx.fillText(emoji, size, size);
-        // Give browser a frame to render the emoji
         requestAnimationFrame(() => {
+          ctx.save();
+          ctx.globalAlpha = opacity;
           ctx.drawImage(off, cx - size, cy - size, size * 2, size * 2);
+          ctx.restore();
           resolve();
         });
       });
