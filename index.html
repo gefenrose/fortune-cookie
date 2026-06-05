@@ -311,47 +311,47 @@
       ctx.fillRect(0, 0, size, size);
 
       // Draw cookie emoji reliably
-      await drawEmoji(ctx, '🥠', size/2, size * 0.25, size * 0.17);
+      await drawEmoji(ctx, '🥠', size/2, size * 0.21, size * 0.15);
 
-      // Date — spaced manually, no letterSpacing
+      // Date
       ctx.font = `${size*0.021}px Georgia, serif`;
       ctx.fillStyle = '#aaa';
       ctx.textAlign = 'center';
-      ctx.fillText(formatDate().toUpperCase(), size/2, size * 0.38);
+      ctx.fillText(formatDate().toUpperCase(), size/2, size * 0.355);
 
       // Thin rule
       ctx.strokeStyle = '#d8d0c0';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(size*0.35, size*0.42);
-      ctx.lineTo(size*0.65, size*0.42);
+      ctx.moveTo(size*0.35, size*0.385);
+      ctx.lineTo(size*0.65, size*0.385);
       ctx.stroke();
 
-      // Fortune text
+      // Fortune text — vertically centered in lower 60% of canvas
       ctx.fillStyle = '#1a1a1a';
       ctx.font = `italic ${size*0.042}px Georgia, serif`;
       const lines = wrapText(ctx, text, size * 0.74);
       const lh = size * 0.062;
       const totalH = lines.length * lh;
-      const ty = size/2 - totalH/2 + lh * 0.5 + size * 0.04;
+      const ty = size * 0.5 - totalH / 2 + lh * 0.4;
       lines.forEach((l, i) => ctx.fillText(l, size/2, ty + i * lh));
 
       // Lucky
       ctx.font = `${size*0.02}px Georgia, serif`;
       ctx.fillStyle = '#aaa';
-      ctx.fillText('LUCKY  ·  ' + lucky.join('   '), size/2, size * 0.76);
+      ctx.fillText('LUCKY  ·  ' + lucky.join('   '), size/2, size * 0.72);
 
       // Bottom rule + brand
       ctx.strokeStyle = '#d8d0c0';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(size*0.35, size*0.8);
-      ctx.lineTo(size*0.65, size*0.8);
+      ctx.moveTo(size*0.35, size*0.76);
+      ctx.lineTo(size*0.65, size*0.76);
       ctx.stroke();
 
       ctx.font = `${size*0.018}px Georgia, serif`;
       ctx.fillStyle = '#ccc';
-      ctx.fillText('fortune cookie', size/2, size * 0.84);
+      ctx.fillText('fortune cookie', size/2, size * 0.8);
 
       canvas.toBlob(blob => {
         const url = URL.createObjectURL(blob);
