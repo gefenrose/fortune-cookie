@@ -310,10 +310,18 @@
       ctx.fillStyle = wash;
       ctx.fillRect(0, 0, size, size);
 
-      // Cookie emoji
-      ctx.font = `${size * 0.12}px serif`;
+      // Cookie emoji — soft backing circle so it renders clearly
+      const emojiSize = size * 0.18;
+      const emojiY = size * 0.28;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(size/2, emojiY - emojiSize * 0.28, emojiSize * 0.58, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(220, 205, 175, 0.35)';
+      ctx.fill();
+      ctx.restore();
+      ctx.font = `${emojiSize}px serif`;
       ctx.textAlign = 'center';
-      ctx.fillText('🥠', size/2, size * 0.3);
+      ctx.fillText('🥠', size/2, emojiY);
 
       // Date
       ctx.font = `300 ${size*0.022}px 'Georgia', serif`;
