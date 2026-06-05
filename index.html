@@ -292,7 +292,7 @@
       location.reload();
     }
 
-    function exportFortune() {
+    async function exportFortune() {
       const { text, lucky } = getTodayFortune();
       const size = 1080;
       const canvas = document.getElementById('exportCanvas');
@@ -310,8 +310,8 @@
       ctx.fillStyle = wash;
       ctx.fillRect(0, 0, size, size);
 
-      // Draw fortune cookie
-      drawCanvasCookie(ctx, size/2, size * 0.24, size * 0.11);
+      // Draw cookie emoji reliably
+      await drawEmoji(ctx, '🥠', size/2, size * 0.25, size * 0.17);
 
       // Date — spaced manually, no letterSpacing
       ctx.font = `${size*0.021}px Georgia, serif`;
@@ -375,90 +375,21 @@
       return lines;
     }
 
-    function drawCanvasCookie(ctx, cx, cy, r) {
-      ctx.save();
-
-      // A fortune cookie is a circular wafer pinched/folded in the middle.
-      // We draw it as two facing crescents meeting at the center crease.
-
-      const w = r * 2.2;  // total width
-      const h = r * 1.5;  // total height
-
-      // Drop shadow
-      ctx.shadowColor = 'rgba(0,0,0,0.15)';
-      ctx.shadowBlur = r * 0.8;
-      ctx.shadowOffsetY = r * 0.25;
-
-      // Left lobe
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - h * 0.08);
-      ctx.bezierCurveTo(
-        cx - w * 0.08, cy - h * 0.55,
-        cx - w * 0.52, cy - h * 0.55,
-        cx - w * 0.5,  cy
-      );
-      ctx.bezierCurveTo(
-        cx - w * 0.52, cy + h * 0.42,
-        cx - w * 0.08, cy + h * 0.42,
-        cx, cy + h * 0.08
-      );
-      ctx.closePath();
-      const lgLeft = ctx.createLinearGradient(cx - w*0.5, cy - h*0.4, cx, cy + h*0.4);
-      lgLeft.addColorStop(0, '#e8b84b');
-      lgLeft.addColorStop(0.5, '#c9922a');
-      lgLeft.addColorStop(1, '#a07020');
-      ctx.fillStyle = lgLeft;
-      ctx.fill();
-
-      ctx.shadowColor = 'transparent';
-
-      // Right lobe
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - h * 0.08);
-      ctx.bezierCurveTo(
-        cx + w * 0.08, cy - h * 0.55,
-        cx + w * 0.52, cy - h * 0.55,
-        cx + w * 0.5,  cy
-      );
-      ctx.bezierCurveTo(
-        cx + w * 0.52, cy + h * 0.42,
-        cx + w * 0.08, cy + h * 0.42,
-        cx, cy + h * 0.08
-      );
-      ctx.closePath();
-      const lgRight = ctx.createLinearGradient(cx, cy - h*0.4, cx + w*0.5, cy + h*0.4);
-      lgRight.addColorStop(0, '#d4a030');
-      lgRight.addColorStop(0.5, '#b87e1a');
-      lgRight.addColorStop(1, '#8a5c10');
-      ctx.fillStyle = lgRight;
-      ctx.fill();
-
-      // Center crease/fold line
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - h * 0.08);
-      ctx.lineTo(cx, cy + h * 0.08);
-      ctx.strokeStyle = '#7a4e0a';
-      ctx.lineWidth = r * 0.12;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-
-      // Paper strip poking out of center
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(cx - r * 0.7, cy - r * 0.1, r * 1.4, r * 0.22, r * 0.04);
-      ctx.fillStyle = '#f8f2e0';
-      ctx.shadowColor = 'rgba(0,0,0,0.1)';
-      ctx.shadowBlur = r * 0.2;
-      ctx.fill();
-      ctx.restore();
-
-      // Highlight on left lobe
-      ctx.beginPath();
-      ctx.ellipse(cx - w * 0.28, cy - h * 0.22, w * 0.12, h * 0.1, -0.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,235,150,0.4)';
-      ctx.fill();
-
-      ctx.restore();
+    function drawEmoji(ctx, emoji, cx, cy, size) {
+      return new Promise(resolve => {
+        const off = document.createElement('canvas');
+        off.width = size * 2; off.height = size * 2;
+        const octx = off.getContext('2d');
+        octx.font = `${size * 1.6}px serif`;
+        octx.textAlign = 'center';
+        octx.textBaseline = 'middle';
+        octx.fillText(emoji, size, size);
+        // Give browser a frame to render the emoji
+        requestAnimationFrame(() => {
+          ctx.drawImage(off, cx - size, cy - size, size * 2, size * 2);
+          resolve();
+        });
+      });
     }
 
     // PWA install
