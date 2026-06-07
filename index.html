@@ -248,12 +248,26 @@
       [5,18,27,33,47], [1,9,16,34,48], [6,13,25,31,45], [4,12,23,37,50],
     ];
 
+    function getBrowserSeed() {
+      // Hash the user agent into a stable number per browser
+      const ua = navigator.userAgent;
+      let hash = 0;
+      for (let i = 0; i < ua.length; i++) {
+        hash = (hash * 31 + ua.charCodeAt(i)) >>> 0;
+      }
+      return hash;
+    }
+
     function getDayIndex() {
       return Math.floor((Date.now() - new Date(2024,0,1)) / 86400000);
     }
     function getTodayFortune() {
-      const idx = getDayIndex();
-      return { text: FORTUNES[idx % FORTUNES.length], lucky: LUCKY_SETS[idx % LUCKY_SETS.length] };
+      const day = getDayIndex();
+      const browser = getBrowserSeed();
+      // Combine day + browser seed so each browser gets a unique but consistent daily fortune
+      const idx = (day * 7919 + browser) % FORTUNES.length;
+      const luckyIdx = (day * 6271 + browser) % LUCKY_SETS.length;
+      return { text: FORTUNES[idx], lucky: LUCKY_SETS[luckyIdx] };
     }
     function formatDate() {
       return new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
