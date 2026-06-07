@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fortune Cookie</title>
   <meta name="description" content="Your daily fortune, freshly cracked." />
-  <meta name="theme-color" content="#faf7f2" />
+  <meta name="theme-color" content="#faf7f2" id="themeColorMeta" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Fortune" />
@@ -18,14 +18,87 @@
 
     body {
       min-height: 100dvh;
-      background: #faf7f2;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: 'Inter', sans-serif;
       padding: 24px;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* ── Themes ── */
+    body.theme-parchment {
+      background: #faf7f2;
       color: #1a1a1a;
+      --text: #1a1a1a;
+      --sub: #aaa;
+      --divider: #d0c8b8;
+      --btn-bg: #fff;
+      --btn-border: #e0d8cc;
+      --btn-hover: #f5f0e8;
+      --btn-color: #555;
+      --export-bg: #faf7f2;
+      --export-card: #f5f0e8;
+      --export-card-border: rgba(180,160,130,0.35);
+      --export-title: #b07858;
+      --export-text: #2a1a0a;
+      --export-sub: #b8a888;
+      --export-date: #c0aa88;
+    }
+    body.theme-midnight {
+      background: #0d0d14;
+      color: #e8e0f0;
+      --text: #e8e0f0;
+      --sub: #666;
+      --divider: #2a2a3a;
+      --btn-bg: #1a1a28;
+      --btn-border: #2a2a3a;
+      --btn-hover: #22223a;
+      --btn-color: #aaa;
+      --export-bg: #0d0d14;
+      --export-card: #13131f;
+      --export-card-border: rgba(100,80,160,0.3);
+      --export-title: #9080c0;
+      --export-text: #e8e0f0;
+      --export-sub: #555570;
+      --export-date: #44445a;
+    }
+    body.theme-matcha {
+      background: #f2f5ee;
+      color: #1f2a1a;
+      --text: #1f2a1a;
+      --sub: #9aaa88;
+      --divider: #c8d8b8;
+      --btn-bg: #fff;
+      --btn-border: #d0dcc0;
+      --btn-hover: #eaf0e0;
+      --btn-color: #4a6040;
+      --export-bg: #f2f5ee;
+      --export-card: #eaf0e2;
+      --export-card-border: rgba(120,160,80,0.25);
+      --export-title: #6a9050;
+      --export-text: #1f2a1a;
+      --export-sub: #8aaa70;
+      --export-date: #a0be88;
+    }
+    body.theme-rose {
+      background: #fdf4f4;
+      color: #2a1a1a;
+      --text: #2a1a1a;
+      --sub: #c8a0a0;
+      --divider: #e8c8c8;
+      --btn-bg: #fff;
+      --btn-border: #f0d8d8;
+      --btn-hover: #faeaea;
+      --btn-color: #885050;
+      --export-bg: #fdf4f4;
+      --export-card: #f8ecec;
+      --export-card-border: rgba(200,120,120,0.25);
+      --export-title: #c06060;
+      --export-text: #2a1a1a;
+      --export-sub: #c8a0a0;
+      --export-date: #d8b0b0;
     }
 
     .container {
@@ -34,19 +107,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0;
     }
 
     .date {
       font-size: 11px;
       font-weight: 300;
       letter-spacing: 0.12em;
-      color: #aaa;
+      color: var(--sub);
       text-transform: uppercase;
       margin-bottom: 48px;
+      transition: color 0.4s;
     }
 
-    /* Emoji button */
     .cookie-btn {
       font-size: 72px;
       line-height: 1;
@@ -70,14 +142,13 @@
 
     .hint {
       font-size: 12px;
-      color: #bbb;
+      color: var(--sub);
       margin-top: 16px;
       letter-spacing: 0.05em;
-      transition: opacity 0.3s;
+      transition: opacity 0.3s, color 0.4s;
     }
     .hint.gone { opacity: 0; }
 
-    /* Fortune */
     .fortune-wrap {
       width: 100%;
       display: flex;
@@ -102,23 +173,26 @@
       font-style: italic;
       font-size: clamp(18px, 5vw, 22px);
       line-height: 1.7;
-      color: #1a1a1a;
+      color: var(--text);
       text-align: center;
       font-weight: 400;
+      transition: color 0.4s;
     }
 
     .divider {
       width: 32px;
       height: 1px;
-      background: #d0c8b8;
+      background: var(--divider);
+      transition: background 0.4s;
     }
 
     .lucky {
       font-size: 11px;
       letter-spacing: 0.15em;
-      color: #aaa;
+      color: var(--sub);
       text-transform: uppercase;
       text-align: center;
+      transition: color 0.4s;
     }
 
     .actions {
@@ -131,9 +205,9 @@
     .btn {
       flex: 1;
       padding: 13px;
-      border: 1px solid #e0d8cc;
-      background: #fff;
-      color: #555;
+      border: 1px solid var(--btn-border);
+      background: var(--btn-bg);
+      color: var(--btn-color);
       font-family: 'Inter', sans-serif;
       font-size: 12px;
       font-weight: 400;
@@ -142,19 +216,43 @@
       border-radius: 8px;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-    .btn:hover { background: #f5f0e8; border-color: #c8bca8; color: #333; }
-    .btn:active { background: #ede6d8; }
+    .btn:hover { background: var(--btn-hover); color: var(--text); }
+    .btn:active { opacity: 0.8; }
+
+    /* ── Theme picker ── */
+    .theme-picker {
+      position: fixed;
+      bottom: 28px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      z-index: 50;
+    }
+    .theme-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .theme-dot:hover { transform: scale(1.2); }
+    .theme-dot.active { border-color: var(--text); transform: scale(1.15); }
+    .theme-dot[data-theme="parchment"] { background: #d4b880; }
+    .theme-dot[data-theme="midnight"]  { background: #6050a0; }
+    .theme-dot[data-theme="matcha"]    { background: #7aaa50; }
+    .theme-dot[data-theme="rose"]      { background: #d07070; }
 
     canvas { display: none; }
 
     #installBanner {
       display: none;
       position: fixed;
-      bottom: 24px;
+      bottom: 64px;
       left: 50%;
       transform: translateX(-50%);
-      background: #1a1a1a;
-      color: #faf7f2;
+      background: var(--text);
+      color: var(--btn-bg);
       font-size: 12px;
       letter-spacing: 0.06em;
       padding: 12px 20px;
@@ -165,7 +263,7 @@
     }
   </style>
 </head>
-<body>
+<body class="theme-parchment">
 
   <div class="container">
     <div class="date" id="dateLabel"></div>
@@ -184,6 +282,13 @@
         <button class="btn" onclick="exportFortune()">↓ Save image</button>
       </div>
     </div>
+  </div>
+
+  <div class="theme-picker">
+    <div class="theme-dot active" data-theme="parchment" onclick="setTheme('parchment')" title="Parchment"></div>
+    <div class="theme-dot"        data-theme="midnight"  onclick="setTheme('midnight')"  title="Midnight"></div>
+    <div class="theme-dot"        data-theme="matcha"    onclick="setTheme('matcha')"    title="Matcha"></div>
+    <div class="theme-dot"        data-theme="rose"      onclick="setTheme('rose')"      title="Rose"></div>
   </div>
 
   <canvas id="exportCanvas"></canvas>
@@ -244,30 +349,47 @@
     ];
 
     const LUCKY_SETS = [
-      [3,17,22,8,44], [7,14,21,36,49], [2,11,29,38,42],
-      [5,18,27,33,47], [1,9,16,34,48], [6,13,25,31,45], [4,12,23,37,50],
+      [3,17,22,8,44],[7,14,21,36,49],[2,11,29,38,42],
+      [5,18,27,33,47],[1,9,16,34,48],[6,13,25,31,45],[4,12,23,37,50],
     ];
 
+    const THEME_EXPORT = {
+      parchment: { bg:'#faf7f2', card:'#f5f0e8', cardBorder:'rgba(180,160,130,0.35)', title:'#b07858', text:'#2a1a0a', sub:'#b8a888', date:'#c0aa88' },
+      midnight:  { bg:'#0d0d14', card:'#13131f', cardBorder:'rgba(100,80,160,0.3)',   title:'#9080c0', text:'#e8e0f0', sub:'#555570', date:'#44445a' },
+      matcha:    { bg:'#f2f5ee', card:'#eaf0e2', cardBorder:'rgba(120,160,80,0.25)',  title:'#6a9050', text:'#1f2a1a', sub:'#8aaa70', date:'#a0be88' },
+      rose:      { bg:'#fdf4f4', card:'#f8ecec', cardBorder:'rgba(200,120,120,0.25)', title:'#c06060', text:'#2a1a1a', sub:'#c8a0a0', date:'#d8b0b0' },
+    };
+
+    // ── Theme ──
+    let currentTheme = localStorage.getItem('fortune_theme') || 'parchment';
+    applyTheme(currentTheme, false);
+
+    function applyTheme(name, save = true) {
+      currentTheme = name;
+      document.body.className = `theme-${name}`;
+      document.querySelectorAll('.theme-dot').forEach(d => {
+        d.classList.toggle('active', d.dataset.theme === name);
+      });
+      if (save) localStorage.setItem('fortune_theme', name);
+    }
+    function setTheme(name) { applyTheme(name); }
+
+    // ── Fortune logic ──
     function getBrowserSeed() {
-      // Hash the user agent into a stable number per browser
       const ua = navigator.userAgent;
       let hash = 0;
-      for (let i = 0; i < ua.length; i++) {
-        hash = (hash * 31 + ua.charCodeAt(i)) >>> 0;
-      }
+      for (let i = 0; i < ua.length; i++) hash = (hash * 31 + ua.charCodeAt(i)) >>> 0;
       return hash;
     }
-
     function getDayIndex() {
       return Math.floor((Date.now() - new Date(2024,0,1)) / 86400000);
     }
     function getTodayFortune() {
-      const day = getDayIndex();
-      const browser = getBrowserSeed();
-      // Combine day + browser seed so each browser gets a unique but consistent daily fortune
-      const idx = (day * 7919 + browser) % FORTUNES.length;
-      const luckyIdx = (day * 6271 + browser) % LUCKY_SETS.length;
-      return { text: FORTUNES[idx], lucky: LUCKY_SETS[luckyIdx] };
+      const day = getDayIndex(), browser = getBrowserSeed();
+      return {
+        text:  FORTUNES[(day * 7919 + browser) % FORTUNES.length],
+        lucky: LUCKY_SETS[(day * 6271 + browser) % LUCKY_SETS.length],
+      };
     }
     function formatDate() {
       return new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
@@ -282,10 +404,8 @@
     }
 
     function crack() {
-      const btn = document.getElementById('cookieBtn');
-      const hint = document.getElementById('hint');
-      btn.classList.add('gone');
-      hint.classList.add('gone');
+      document.getElementById('cookieBtn').classList.add('gone');
+      document.getElementById('hint').classList.add('gone');
       localStorage.setItem('fortune_cracked', todayKey);
       setTimeout(() => {
         document.getElementById('precrack').style.display = 'none';
@@ -297,11 +417,9 @@
       const { text, lucky } = getTodayFortune();
       document.getElementById('fortuneText').textContent = text;
       document.getElementById('luckyNumbers').textContent = 'Lucky · ' + lucky.join('  ');
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          document.getElementById('fortuneWrap').classList.add('visible');
-        });
-      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        document.getElementById('fortuneWrap').classList.add('visible');
+      }));
     }
 
     function reset() {
@@ -309,67 +427,51 @@
       location.reload();
     }
 
+    // ── Export ──
     async function exportFortune() {
       const { text, lucky } = getTodayFortune();
+      const t = THEME_EXPORT[currentTheme];
       const size = 1080;
       const canvas = document.getElementById('exportCanvas');
       canvas.width = size; canvas.height = size;
       const ctx = canvas.getContext('2d');
+      const pad = size * 0.055, r = size * 0.055;
 
-      const pad = size * 0.055;
-      const r = size * 0.055; // corner radius
-
-      // ── Background ──
-      ctx.fillStyle = '#faf7f2';
+      ctx.fillStyle = t.bg;
       ctx.fillRect(0, 0, size, size);
 
-      // ── Card ──
       roundRect(ctx, pad, pad, size - pad*2, size - pad*2, r);
-      ctx.fillStyle = '#f5f0e8';
-      ctx.fill();
-
-      // Card border
+      ctx.fillStyle = t.card; ctx.fill();
       roundRect(ctx, pad, pad, size - pad*2, size - pad*2, r);
-      ctx.strokeStyle = 'rgba(180,160,130,0.35)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      ctx.strokeStyle = t.cardBorder; ctx.lineWidth = 2; ctx.stroke();
 
-      // ── Title bar ──
       const titleY = pad + size * 0.085;
       ctx.font = `italic ${size*0.044}px Lora, Georgia, serif`;
-      ctx.fillStyle = '#b07858';
-      ctx.textAlign = 'center';
+      ctx.fillStyle = t.title; ctx.textAlign = 'center';
       ctx.fillText('Fortune Cookie', size/2, titleY);
 
-      // ── Watermark cookie (big, faint, centered) ──
       await drawEmoji(ctx, '🥠', size/2, size * 0.48, size * 0.32, 0.18);
 
-      // ── Fortune text (over watermark) ──
-      ctx.fillStyle = '#2a1a0a';
+      ctx.fillStyle = t.text;
       ctx.font = `italic ${size*0.046}px Lora, Georgia, serif`;
       const lines = wrapText(ctx, text, size * 0.72);
-      const lh = size * 0.068;
-      const totalH = lines.length * lh;
+      const lh = size * 0.068, totalH = lines.length * lh;
       const ty = size * 0.5 - totalH / 2 + lh * 0.75;
       lines.forEach((l, i) => ctx.fillText(l, size/2, ty + i * lh));
 
-      // ── Lucky numbers ──
       ctx.font = `${size*0.032}px Georgia, serif`;
-      ctx.fillStyle = '#b8a888';
+      ctx.fillStyle = t.sub;
       ctx.fillText('lucky  ·  ' + lucky.join('   '), size/2, size * 0.74);
 
-      // ── Date at bottom ──
       ctx.font = `${size*0.036}px Georgia, serif`;
-      ctx.fillStyle = '#c0aa88';
+      ctx.fillStyle = t.date;
       ctx.fillText(new Date().toLocaleDateString('en-GB').replace(/\//g, '.'), size/2, size - pad - size*0.04);
 
       canvas.toBlob(blob => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `fortune-${todayKey}.png`;
-        a.click();
-        URL.revokeObjectURL(url);
+        a.href = url; a.download = `fortune-${todayKey}.png`;
+        a.click(); URL.revokeObjectURL(url);
       }, 'image/png');
     }
 
@@ -382,10 +484,8 @@
       ctx.lineTo(x, y+r); ctx.arcTo(x, y, x+r, y, r);
       ctx.closePath();
     }
-
     function wrapText(ctx, text, maxW) {
-      const words = text.split(' ');
-      const lines = []; let line = '';
+      const words = text.split(' '), lines = []; let line = '';
       for (const w of words) {
         const t = line ? `${line} ${w}` : w;
         if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; }
@@ -394,37 +494,30 @@
       if (line) lines.push(line);
       return lines;
     }
-
     function drawEmoji(ctx, emoji, cx, cy, size, opacity = 1) {
       return new Promise(resolve => {
         const off = document.createElement('canvas');
         off.width = size * 2; off.height = size * 2;
         const octx = off.getContext('2d');
         octx.font = `${size * 1.6}px serif`;
-        octx.textAlign = 'center';
-        octx.textBaseline = 'middle';
+        octx.textAlign = 'center'; octx.textBaseline = 'middle';
         octx.fillText(emoji, size, size);
         requestAnimationFrame(() => {
-          ctx.save();
-          ctx.globalAlpha = opacity;
+          ctx.save(); ctx.globalAlpha = opacity;
           ctx.drawImage(off, cx - size, cy - size, size * 2, size * 2);
-          ctx.restore();
-          resolve();
+          ctx.restore(); resolve();
         });
       });
     }
 
-    // PWA install
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault(); deferredPrompt = e;
       const b = document.getElementById('installBanner');
       b.style.display = 'block';
       b.onclick = async () => {
-        b.style.display = 'none';
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
+        b.style.display = 'none'; deferredPrompt.prompt();
+        await deferredPrompt.userChoice; deferredPrompt = null;
       };
     });
 
